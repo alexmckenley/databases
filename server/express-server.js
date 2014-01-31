@@ -1,24 +1,9 @@
 var express = require('express');
 var mysql = require('mysql');
+var sqlHelpers = require('./sql-helpers');
 var app = express();
 
 app.use(express.bodyParser());
-
-// Database Connection
-var connection = mysql.createConnection({
-  user: "root",
-  password: "plantlife",
-  host: "localhost",
-  database: "chat"
-});
-
-connection.connect(function(err) {
-  if(err) {
-    console.log(err);
-  } else {
-    console.log("Connected");
-  }
-});
 
 app.get('/', function(req, res){
   res.redirect('/index.html');
@@ -35,10 +20,22 @@ app.post('/classes/messages', function(req, res){
   if(req.body.username === 'null') { // ToDo: Change this to frontend
     req.body.username = "anonymous";
   }
-  sqlHelpers.getUserId(req.body.username);
+  if(req.body.roomname === 'null') { // ToDo: Change this to frontend
+    req.body.roomname = "lobby";
+  }
 
+  var message = { text: req.body.text };
+  sqlHelpers.getUserId(req.body.username, function(id) {
+    message.id_users = id;
 
-  res.send();
+    sqlHelpers.getRoomId(req.body.roomname, function(id) {
+      message.id_rooms = id;
+
+      sqlHelpers.addMessage(message, function(id) {
+        res.send("Created message: ", id);
+      });
+    });
+  });
 });
 
 //Serve static files
