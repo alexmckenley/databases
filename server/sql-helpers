@@ -1,0 +1,23 @@
+var mysql = require('mysql');
+
+
+module.exports = {
+
+
+  connection.query("SELECT id FROM users WHERE username=" + connection.escape(req.body.username) + '"', function(err, rows){
+    if(err){
+      console.log("Error: ", err);
+    } else {
+      if (rows.length === 0) {
+        // Add user function
+
+        // Get id
+        id = sqlHelpers.addUser(connection.escape(req.body.username));
+      } else {
+        id = rows[0].id;
+      }
+    }
+  });
+
+};
+
