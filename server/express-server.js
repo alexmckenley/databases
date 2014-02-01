@@ -11,8 +11,10 @@ app.get('/', function(req, res){
 
 app.get('/classes/messages', function(req, res){
   res.set(defaultCorsHeaders);
-
-  res.send();
+  sqlHelpers.getMessages(function(rows) {
+    res.send(rows);
+  });
+  // res.send();
 });
 
 app.post('/classes/messages', function(req, res){

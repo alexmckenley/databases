@@ -21,7 +21,7 @@ module.exports = {
   getUserId: function(user, cb){
     var userId;
     var escapedUser = connection.escape(user);
-    connection.query('SELECT id FROM users WHERE username="' + escapedUser + '"', function(err, rows){
+    connection.query('SELECT id FROM users WHERE username=' + escapedUser, function(err, rows){
       if(err){
         console.log("Error: ", err);
       } else {
@@ -41,7 +41,7 @@ module.exports = {
   getRoomId: function(roomname, cb){
     var roomId;
     var escapedRoomname = connection.escape(roomname);
-    connection.query('SELECT id FROM rooms WHERE roomname="' + escapedRoomname + '"', function(err, rows){
+    connection.query('SELECT id FROM rooms WHERE roomname=' + escapedRoomname, function(err, rows){
       if(err){
         console.log("Error: ", err);
       } else {
@@ -60,7 +60,7 @@ module.exports = {
 
   addUser: function(user, cb) {
      var escapedUser = connection.escape(user);
-    connection.query('INSERT INTO users (username) VALUES ("'+ escapedUser +'")', function(err) {
+    connection.query('INSERT INTO users (username) VALUES ('+ escapedUser +')', function(err) {
       if(err) {
         console.log("Error: ", err);
         cb(false);
@@ -76,7 +76,7 @@ module.exports = {
 
     var escapedRoomname = connection.escape(roomname);
     console.log("Adding Room: ", roomname);
-    connection.query('INSERT INTO rooms (roomname) VALUES ("'+ escapedRoomname +'")', function(err) {
+    connection.query('INSERT INTO rooms (roomname) VALUES ('+ escapedRoomname +')', function(err) {
       if(err) {
         console.log("Error: ", err);
         cb(false);
@@ -94,7 +94,7 @@ module.exports = {
     var values = [];
     for(var key in message){
       keys.push(key);
-      values.push(JSON.stringify(message[key]));
+      values.push(connection.escape(message[key]));
     }
 
     console.log('INSERT INTO messages (' + keys.join(',') + ') VALUES ('+ values.join(',') +')');
@@ -121,8 +121,12 @@ module.exports = {
   },
 
   getMessages: function(cb) {  // Change to return just room messages
-    connection.query('SELECT text, username, createdAt, id, roomname FROM messages INNER JOIN users on id_users = users.id INNER JOIN rooms on id_rooms = rooms.id', function() {
-
+    connection.query('SELECT text, username, roomname, createdAt, messages.id FROM messages INNER JOIN users on id_users = users.id INNER JOIN rooms on id_rooms = rooms.id', function(err, rows) {
+      if(err){
+        cb(false);
+      } else {
+        cb(rows);
+      }
     });
   }
 };
