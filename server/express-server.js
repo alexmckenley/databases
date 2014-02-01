@@ -17,12 +17,12 @@ app.get('/classes/messages', function(req, res){
 
 app.post('/classes/messages', function(req, res){
   res.set(defaultCorsHeaders);
-  if(req.body.username === 'null') { // ToDo: Change this to frontend
+   if(req.body.username === 'null') { // ToDo: Change this to frontend
     req.body.username = "anonymous";
-  }
-  if(req.body.roomname === 'null') { // ToDo: Change this to frontend
+   }
+   if(req.body.roomname === undefined) { // ToDo: Change this to frontend
     req.body.roomname = "lobby";
-  }
+   }
 
   var message = { text: req.body.text };
   sqlHelpers.getUserId(req.body.username, function(id) {

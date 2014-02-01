@@ -20,44 +20,47 @@ module.exports = {
 
   getUserId: function(user, cb){
     var userId;
-    user = connection.escape(user);
-    connection.query('SELECT id FROM users WHERE username="' + user + '"', function(err, rows){
+    var escapedUser = connection.escape(user);
+    connection.query('SELECT id FROM users WHERE username="' + escapedUser + '"', function(err, rows){
       if(err){
         console.log("Error: ", err);
       } else {
         if (rows.length === 0) {
           module.exports.addUser(user, function(id){
             userId = id;
+            cb(userId);
           });
         } else {
           userId = rows[0].id;
+          cb(userId);
         }
       }
-      cb(userId);
     });
   },
 
   getRoomId: function(roomname, cb){
     var roomId;
-    roomname = connection.escape(roomname);
-    connection.query('SELECT id FROM rooms WHERE roomname="' + roomname + '"', function(err, rows){
+    var escapedRoomname = connection.escape(roomname);
+    connection.query('SELECT id FROM rooms WHERE roomname="' + escapedRoomname + '"', function(err, rows){
       if(err){
         console.log("Error: ", err);
       } else {
         if (rows.length === 0) {
           module.exports.addRoom(roomname, function(id){
             roomId = id;
+            cb(roomId);
           });
         } else {
           roomId = rows[0].id;
+          cb(roomId);
         }
       }
-      cb(roomId);
     });
   },
 
   addUser: function(user, cb) {
-    connection.query('INSERT INTO users (username) VALUES ("'+user+'")', function(err) {
+     var escapedUser = connection.escape(user);
+    connection.query('INSERT INTO users (username) VALUES ("'+ escapedUser +'")', function(err) {
       if(err) {
         console.log("Error: ", err);
         cb(false);
@@ -70,7 +73,10 @@ module.exports = {
   },
 
   addRoom: function(roomname, cb) {
-    connection.query('INSERT INTO rooms (roomname) VALUES ("'+roomname+'")', function(err) {
+
+    var escapedRoomname = connection.escape(roomname);
+    console.log("Adding Room: ", roomname);
+    connection.query('INSERT INTO rooms (roomname) VALUES ("'+ escapedRoomname +'")', function(err) {
       if(err) {
         console.log("Error: ", err);
         cb(false);
@@ -91,7 +97,6 @@ module.exports = {
       values.push(JSON.stringify(message[key]));
     }
 
-
     console.log('INSERT INTO messages (' + keys.join(',') + ') VALUES ('+ values.join(',') +')');
     connection.query('INSERT INTO messages (' + keys.join(',') + ') VALUES ('+ values.join(',') +')', function(err) {
       if(err) {
@@ -102,6 +107,22 @@ module.exports = {
         cb(true);
         // });
       }
+    });
+  },
+
+  getById: function(table, id, cb) {
+    connection.query('SELECT * FROM ' + table + ' WHERE id=' + id, function(err, rows) {
+      if(err) {
+        cb(false);
+      } else {
+        cb(rows[0]);
+      }
+    });
+  },
+
+  getMessages: function(cb) {  // Change to return just room messages
+    connection.query('SELECT text, username, createdAt, id, roomname FROM messages INNER JOIN users on id_users = users.id INNER JOIN rooms on id_rooms = rooms.id', function() {
+
     });
   }
 };
