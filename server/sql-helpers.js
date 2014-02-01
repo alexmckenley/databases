@@ -121,7 +121,8 @@ module.exports = {
   },
 
   getMessages: function(cb) {  // Change to return just room messages
-    connection.query('SELECT text, username, roomname, createdAt, messages.id FROM messages INNER JOIN users on id_users = users.id INNER JOIN rooms on id_rooms = rooms.id', function(err, rows) {
+    connection.query('SELECT text, username, roomname, createdAt, messages.id FROM messages ' +
+      'INNER JOIN users on id_users = users.id INNER JOIN rooms on id_rooms = rooms.id', function(err, rows) {
       if(err){
         cb(false);
       } else {
